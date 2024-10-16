@@ -266,7 +266,8 @@ const Home1LiveAuction = () => {
                               <div className="price-and-code-area">
                                 <div className="price">
                                   <span>Current Bid at:</span>
-                                  <strong>₹ 100</strong>
+                                  {/* <strong>₹ 100</strong> */}
+                                  <strong>₹ {lot?.bd_current_bid ? lot?.bd_current_bid : lot?.lot_est_min_bid}</strong>
                                 </div>
                                 <div className="code">
                                   <span>Lot # {lot.lot_code}</span>
