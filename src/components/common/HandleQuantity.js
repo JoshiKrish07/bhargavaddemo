@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useReducer } from "react";
-import { type } from "serverless/lib/config-schema";
 import { toast } from "react-toastify";
 
 // Reducer function to manage quantity state
