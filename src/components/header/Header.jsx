@@ -548,7 +548,7 @@ const Header = () => {
             <span style={{ top: "40.5px", left: "84.2344px" }} />
           </a> */}
   
-            <Link href={state.token ? '/profile' : '/login'} className="login-btn btn-hover d-lg-flex d-none">
+            <Link href={state.token ? '/dashboard' : '/login'} className="login-btn btn-hover d-lg-flex d-none">
               <svg
                 width={15}
                 height={19}

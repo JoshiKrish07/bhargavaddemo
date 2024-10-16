@@ -6,25 +6,42 @@ import uploadImgToCloudinary from "@/lib/cloudinary";
 
 export async function GET(req) {
   const token = req.headers.get("Authorization")?.split(" ")[1];
-
+  console.log("===token====>", token)
   if (!token)
     return NextResponse.json({ message: "No token provided" }, { status: 401 });
 
   try {
     const decodeUser = verifyToken(token);
     const userId = decodeUser.id;
+    // const [result] = await db.query("SELECT * FROM register WHERE id = ?", [
+    //   userId,
+    // ]);
 
-    const [result] = await db.query("SELECT * FROM register WHERE id = ?", [
-      userId,
-    ]);
+    const [results] = await db.query(
+      `SELECT 
+          r.*, 
+          bd.*, 
+          ld.*
+       FROM 
+          register r 
+       LEFT JOIN 
+          bid_detail bd ON r.id = bd.bid_owner_id 
+       LEFT JOIN 
+          lot_detail ld ON bd.bid_lot_id = ld.lot_id 
+       WHERE 
+          r.id = ?`, 
+      [userId]
+    );
 
-    if (result.length === 0) {
+    if (results.length === 0) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    const { password, ...userWithoutPassword } = result[0];
+    const { password, ...userWithoutPassword } = results;
+
     return NextResponse.json({ user: userWithoutPassword }, { status: 200 });
   } catch (error) {
+    console.log("error in profile", error);
     if(error.message === "Invalid token" || error.message === "Token has expired") {
         return NextResponse.json({ message: error.message }, { status: 401 });
     } else {

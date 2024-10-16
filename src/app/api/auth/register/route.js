@@ -6,7 +6,7 @@ import path from "path";
 import bcrypt from "bcrypt";
 import cors from "@/lib/cors";
 import uploadImgToCloudinary from "@/lib/cloudinary";
-export const config = {
+const config = {
   api: {
     bodyParser: false,    // disable next js body parsing
   },
@@ -17,7 +17,8 @@ export const config = {
 // };
 
 // Create the uploads directory path
-const uploadsDir = path.join(process.cwd(), "profileiamge");
+const uploadsDir = path.join(process.cwd(), "public/profileImage");
+console.log("====>uploadsDir===>", uploadsDir);
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
@@ -80,32 +81,48 @@ export async function POST(req) {
 
     let imagePath = null;
 
-    if (profilePic && typeof profilePic === "object" && profilePic.name) {
+    // if (profilePic && typeof profilePic === "object" && profilePic.name) {
 
-      // path to store image
-      // imagePath = `profileiamge/${profilePic.name}`;    
-      // const buffer = await profilePic.arrayBuffer();
-      // await fs.promises.writeFile(imagePath, Buffer.from(buffer));
+    //   // path to store image
+    //   // imagePath = `profileiamge/${profilePic.name}`;    
+    //   // const buffer = await profilePic.arrayBuffer();
+    //   // await fs.promises.writeFile(imagePath, Buffer.from(buffer));
 
 
-      // uploading on cloudinary
+    //   // uploading on cloudinary
 
-      try {
-        const buffer = await profilePic.arrayBuffer();
-        const publicId = `profile_image/${Date.now()}_${profilePic.name}`;
-        const result = await uploadImgToCloudinary(Buffer.from(buffer), publicId);
+    //   try {
+    //     const buffer = await profilePic.arrayBuffer();
+    //     const publicId = `profile_image/${Date.now()}_${profilePic.name}`;
+    //     const result = await uploadImgToCloudinary(Buffer.from(buffer), publicId);
     
-        // save result.secure_url or result.public_id to your database
-        if(result.secure_url) {
-          imagePath = result.secure_url;
-        }
+    //     // save result.secure_url or result.public_id to your database
+    //     if(result.secure_url) {
+    //       imagePath = result.secure_url;
+    //     }
     
-      } catch (error) {
-        console.error('Error uploading image:', error);
-      }
-    }
+    //   } catch (error) {
+    //     console.error('Error uploading image:', error);
+    //   }
+    // }
     
     // Check if the user already exists
+   
+   
+    if (profilePic && typeof profilePic === "object" && profilePic.name) {
+
+      const imageFileName = `${Date.now()}-${profilePic.name}`; // To ensure unique names
+      imagePath = path.join(uploadsDir, imageFileName);
+    
+      // Write the file to the server's public/profileImage folder
+      const buffer = await profilePic.arrayBuffer();
+      await fs.promises.writeFile(imagePath, Buffer.from(buffer));
+    
+      // Save only the relative path to the image (for example: /profileImage/filename.jpg)
+      imagePath = `/profileImage/${imageFileName}`;
+    }
+
+
     const [existingUser] = await pool.execute(
       "SELECT * FROM register WHERE email = ? OR handlename = ?",
       [email, handlename]

@@ -46,7 +46,7 @@ export async function POST(req) {
         return resolve(
           new Response(
             JSON.stringify({ error: "Invalid handlename or password" }),
-            { status: 401 } // Unauthorized status code
+            { status: 401 } // Unauthorized
           )
         );
       }

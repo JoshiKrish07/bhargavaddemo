@@ -73,7 +73,7 @@ const Footer = () => {
                         <li><Link href="/how-to-buy">How to bid with us</Link></li>
                         <li><Link href="/how-to-sell">How to sell with us</Link></li>
                         <li><Link href="/about">About us</Link></li>
-                        <li><Link href="/faq">F.A.Q</Link></li>
+                        {/* <li><Link href="/faq">F.A.Q</Link></li> */}
                         <li><a href="#">Our Brand</a></li>
                       </ul>
                     </div>
