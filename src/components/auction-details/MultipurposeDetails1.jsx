@@ -27,6 +27,7 @@ const MultipurposeDetails1 = ({ lotId }) => {
   // const [auctionData, setAuctionData] = useState([]);
   const [loadingState, setLoadingState] = useState(false);
   const [nextBidAmount, setNextBidAmount] = useState(null);
+  const [currentBidAmount, setCurrentBidAmount] = useState(null);
 
   /* Bid display call starts */
 
@@ -38,7 +39,7 @@ const MultipurposeDetails1 = ({ lotId }) => {
 
 
   const { lotDetails: lotData, loading, error } = useSelector((state) => state.auction);    // lot details
-  // console.log("======bidDisplayDetails=====>", bidDisplayDetails);
+  // console.log("======lotData=====>", lotData);
   const liveLots = useSelector((state) => state.auction.lots);
   const hasLiveLots = useMemo(() => liveLots.length > 0, [liveLots]); 
   const [handleName, setHandleName] = useState('');
@@ -99,6 +100,8 @@ const MultipurposeDetails1 = ({ lotId }) => {
             await dispatch(fetchLiveAuction()); // Fetch only if no lots are available
         }
         await dispatch(fetchBidDetails({lotId, 'bdHandle': handleName ? handleName : localStorage.getItem('handlename')}));
+        setNextBidAmount(lotData?.bd_next_bid);
+        setCurrentBidAmount(lotData?.bd_current_bid);
     };
 
     if(lotId) {
@@ -111,10 +114,11 @@ const MultipurposeDetails1 = ({ lotId }) => {
     
     // if(hasBidDisplay) {
     //    bidDisplayDetails.map((bid) => {
-    //      console.log("===bid====>", bid);
-    //      if(bid.bd_lot_id == lot)
+    //      if(bid.bd_lot_id == lotId) {
+    //       setNextBidAmount(bid.bd_next_bid);
+    //       setCurrentBidAmount(bid.bd_current_bid);
+    //      }
     //    })
-
     // }
   
 }, [dispatch, lotId, hasBidDisplay]); 
@@ -274,6 +278,7 @@ const MultipurposeDetails1 = ({ lotId }) => {
       toast.error(`price must be greater than current bid - ${currentVal}`, { position: "top-right" });
       return;
     };
+    
     const currentDate = await getCurrentDateTime();
     setLoadingState(true);
     try {
@@ -293,7 +298,7 @@ const MultipurposeDetails1 = ({ lotId }) => {
       formDataToSend.append('bidAmt', finalVal);
       formDataToSend.append('bidDate', currentDate);
       formDataToSend.append('isBooked', false);
-      formDataToSend.append('nextBidAmt', lotData.lot_est_min_bid);
+      formDataToSend.append('nextBidAmt', lotData.lot_min_incr);
 
       const response = await fetch('/api/bid_detail', {
         method: 'POST',
@@ -502,7 +507,7 @@ const MultipurposeDetails1 = ({ lotId }) => {
                 <div className="price-area">
                   <span>Current Bid at:</span>
                   {/* <strong>₹ 100</strong> */}
-                  <strong id="current_bid_val">₹ {lotData?.lot_est_min_bid}</strong>
+                  <strong id="current_bid_val">₹ {lotData?.bd_current_bid ? lotData?.bd_current_bid : lotData?.lot_est_min_bid}</strong>
                   {/* bidDetails */}
                 </div>
                 <div className="coundown-area">
@@ -566,7 +571,8 @@ const MultipurposeDetails1 = ({ lotId }) => {
                       lotData && 
                       <HandleQuantity
                         lotMinIncrement={lotData?.lot_min_incr}
-                        initialQuantity={lotData?.lot_est_min_bid}
+                        initialQuantity={lotData?.bd_next_bid ? lotData?.bd_next_bid : lotData?.lot_est_min_bid}
+                        currentQuantity = {lotData.bd_current_bid ? lotData.bd_current_bid : lotData?.lot_est_min_bid}
                         onPlaceBid={handlePlaceBid} 
                       />
                     }

@@ -17,11 +17,12 @@ export async function GET(req) {
       // );
 
       const [rows] = await db.execute(
-        `SELECT ld.*, m.mat_name, c.cat_name, ad.end_date
+        `SELECT ld.*, m.mat_name, c.cat_name, ad.end_date, bd.bd_next_bid, bd.bd_current_bid
          FROM lot_detail AS ld
          LEFT JOIN material AS m ON ld.lot_mat_id = m.mat_id
          LEFT JOIN category AS c ON ld.lot_cat_id = c.cat_id
          LEFT JOIN auction_detail AS ad ON ld.lot_auct_id = ad.auct_id
+         LEFT JOIN bid_display AS bd ON ld.lot_id = bd.bd_lot_id
          WHERE ld.lot_id = ?`,
         [lotId]
       );
@@ -32,7 +33,12 @@ export async function GET(req) {
       
       return NextResponse.json({ data: rows[0] }, { status: 200 });
     } else {
-      const [rows] = await db.execute("SELECT * FROM lot_detail");
+      // const [rows] = await db.execute("SELECT * FROM lot_detail");
+      const [rows] = await db.execute(
+        `SELECT ld.*, bd.bd_current_bid
+        FROM lot_detail AS ld
+        LEFT JOIN bid_display AS bd ON ld.lot_id = bd.bd_lot_id`
+      );
       return NextResponse.json({ data: rows }, { status: 200 });
     }
   } catch (error) {
